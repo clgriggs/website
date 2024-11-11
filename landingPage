@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Fullscreen canvas */
+        body, html {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #111;
+        }
+
+        canvas {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <script>
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // Canvas and particle settings
+      let particles = [];
+      const nameText = "CRYSTAL GRIGGS"; // Your name here
+      const enterText = "ENTER";
+      let useEnterText = false;
+
+      // Set canvas dimensions
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      class Particle {
+        constructor(x, y) {
+          this.x = x;
+          this.y = y;
+          this.size = 2;
+          this.baseX = x;
+          this.baseY = y;
+          this.color = 'rgba(255, 255, 255, 0.7)';
+        }
+
+        // Draw particles
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Update particle positions based on target text
+        update() {
+          const dx = this.baseX - this.x;
+          const dy = this.baseY - this.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const moveSpeed = distance / 10;
+          this.x += dx / moveSpeed;
+          this.y += dy / moveSpeed;
+        }
+      }
+
+      // Generate particles from text
+      function createParticles(text) {
+        particles = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold 80px Arial";
+        ctx.fillText(text, canvas.width / 4, canvas.height / 2);
+
+        const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        for (let y = 0; y < canvas.height; y += 10) {
+          for (let x = 0; x < canvas.width; x += 10) {
+            const alpha = textData[(y * canvas.width + x) * 4 + 3];
+            if (alpha > 128) {
+              particles.push(new Particle(x, y));
+            }
+          }
+        }
+      }
+
+      // Switch text based on mouse presence
+      function switchText() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        createParticles(useEnterText ? enterText : nameText);
+        useEnterText = !useEnterText;
+      }
+
+      // Mouse event listener to trigger text change
+      canvas.addEventListener('mousemove', () => {
+        if (!useEnterText) {
+          switchText();
+        }
+      });
+
+      // Animation loop
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw();
+        });
+        requestAnimationFrame(animate);
+      }
+
+      // Initialize
+      createParticles(nameText);
+      animate();
+
+      // Adjust canvas size on window resize
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        createParticles(useEnterText ? enterText : nameText);
+      });
+    </script>
+</body>
+</html>
