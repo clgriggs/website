@@ -31,8 +31,11 @@
       let useEnterText = false;
 
       // Set canvas dimensions
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      function resizeCanvas() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
 
       class Particle {
         constructor(x, y) {
@@ -41,7 +44,7 @@
           this.size = 2;
           this.baseX = x;
           this.baseY = y;
-          this.color = 'rgba(255, 255, 255, 0.7)';
+          this.color = 'rgba(255, 255, 255, 0.9)';
         }
 
         // Draw particles
@@ -68,8 +71,10 @@
       function createParticles(text) {
         particles = [];
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "bold 80px Arial";
-        ctx.fillText(text, canvas.width / 4, canvas.height / 2);
+        ctx.font = "bold 80px sans-serif";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
         const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         for (let y = 0; y < canvas.height; y += 10) {
@@ -112,8 +117,7 @@
 
       // Adjust canvas size on window resize
       window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        resizeCanvas();
         createParticles(useEnterText ? enterText : nameText);
       });
     </script>
