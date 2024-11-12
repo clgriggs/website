@@ -37,16 +37,18 @@
       }
       resizeCanvas();
 
-      // Simple Particle class for testing
+      // Particle class definition
       class Particle {
         constructor(x, y) {
           this.x = x;
           this.y = y;
-          this.size = 10;
-          this.color = 'rgba(255, 255, 255, 0.9)';
+          this.size = 4; // Larger for debugging visibility
+          this.baseX = x;
+          this.baseY = y;
+          this.color = 'rgba(255, 255, 255, 1.0)';
         }
 
-        // Draw particles
+        // Draw particle
         draw() {
           ctx.fillStyle = this.color;
           ctx.beginPath();
@@ -56,30 +58,52 @@
         }
       }
 
-      // Manually create a few particles for testing
-      const particles = [
-        new Particle(100, 100),
-        new Particle(200, 200),
-        new Particle(300, 300),
-        new Particle(400, 400),
-        new Particle(500, 500)
-      ];
+      // Generate particles from text
+      function createParticles(text) {
+        particles = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold 80px sans-serif";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
-      // Animation loop to draw particles
+        const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        for (let y = 0; y < canvas.height; y += 10) {
+          for (let x = 0; x < canvas.width; x += 10) {
+            const alpha = textData[(y * canvas.width + x) * 4 + 3];
+            if (alpha > 128) {
+              particles.push(new Particle(x, y));
+            }
+          }
+        }
+        console.log(`Generated ${particles.length} particles`); // Debug log
+      }
+
+      // Mouse event listener to trigger text change
+      let useEnterText = false;
+      function switchText() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        createParticles(useEnterText ? "ENTER" : "CRYSTAL GRIGGS");
+        useEnterText = !useEnterText;
+      }
+      canvas.addEventListener('mousemove', switchText);
+
+      // Animation loop
+      const particles = [];
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(particle => {
-          particle.draw();
-        });
+        particles.forEach(particle => particle.draw());
         requestAnimationFrame(animate);
       }
 
-      // Start animation
+      // Initialize particles and start animation
+      createParticles("CRYSTAL GRIGGS");
       animate();
 
       // Adjust canvas size on window resize
       window.addEventListener('resize', () => {
         resizeCanvas();
+        createParticles(useEnterText ? "ENTER" : "CRYSTAL GRIGGS");
       });
     </script>
 </body>
