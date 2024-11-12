@@ -42,10 +42,12 @@
         constructor(x, y) {
           this.x = x;
           this.y = y;
-          this.size = 4; // Larger for debugging visibility
+          this.size = 2; // Smaller for higher density
           this.baseX = x;
           this.baseY = y;
-          this.color = 'rgba(255, 255, 255, 1.0)';
+          this.velocityX = Math.random() * 0.6 - 0.3; // Random velocity for floating effect
+          this.velocityY = Math.random() * 0.6 - 0.3;
+          this.color = 'rgba(180, 200, 255, 0.8)';
         }
 
         // Draw particle
@@ -55,6 +57,22 @@
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
           ctx.closePath();
           ctx.fill();
+        }
+
+        // Update particle positions for slight floating effect
+        update() {
+          this.x += this.velocityX;
+          this.y += this.velocityY;
+
+          // Reverse direction if particle moves too far from base position
+          if (Math.abs(this.x - this.baseX) > 2) this.velocityX *= -1;
+          if (Math.abs(this.y - this.baseY) > 2) this.velocityY *= -1;
+        }
+
+        // Move particle to new target position smoothly
+        moveTo(targetX, targetY) {
+          this.baseX = targetX;
+          this.baseY = targetY;
         }
       }
 
@@ -71,22 +89,44 @@
         ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
         const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        for (let y = 0; y < canvas.height; y += 10) {
-          for (let x = 0; x < canvas.width; x += 10) {
+        for (let y = 0; y < canvas.height; y += 6) { // Smaller gap for higher density
+          for (let x = 0; x < canvas.width; x += 6) {
             const alpha = textData[(y * canvas.width + x) * 4 + 3];
             if (alpha > 128) {
-              particles.push(new Particle(x, y));
+              const particle = new Particle(x, y);
+              particles.push(particle);
             }
           }
         }
         console.log(`Generated ${particles.length} particles`); // Debug log
       }
 
-      // Mouse event listener to trigger text change
+      // Move particles to new text shape
+      function moveParticlesToText(text) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold 80px sans-serif";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let particleIndex = 0;
+
+        for (let y = 0; y < canvas.height; y += 6) {
+          for (let x = 0; x < canvas.width; x += 6) {
+            const alpha = textData[(y * canvas.width + x) * 4 + 3];
+            if (alpha > 128 && particleIndex < particles.length) {
+              particles[particleIndex].moveTo(x, y);
+              particleIndex++;
+            }
+          }
+        }
+      }
+
+      // Mouse event listener to switch text smoothly
       let useEnterText = false;
       function switchText() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        createParticles(useEnterText ? "ENTER" : "CRYSTAL GRIGGS");
+        moveParticlesToText(useEnterText ? "CRYSTAL GRIGGS" : "ENTER");
         useEnterText = !useEnterText;
       }
       canvas.addEventListener('mousemove', switchText);
@@ -94,7 +134,10 @@
       // Animation loop
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(particle => particle.draw());
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw();
+        });
         requestAnimationFrame(animate);
       }
 
