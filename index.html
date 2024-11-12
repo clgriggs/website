@@ -45,10 +45,10 @@
           this.baseY = y;
           this.size = Math.random() * 1 + 0.5; // Small particles for point cloud effect
           this.depth = Math.random() * 0.3 + 0.7; // Depth effect with opacity
-          this.maxWander = 10; // Reduced wander range to stay closer to base
-          this.pullStrength = 0.05; // Pull-back force to base position
-          this.velocityX = Math.random() * 0.5 - 0.25; // Slower, random velocity
-          this.velocityY = Math.random() * 0.5 - 0.25;
+          this.maxWander = Math.random() < 0.7 ? 6 : 20; // 70% of particles stay close; 30% float further
+          this.pullStrength = Math.random() < 0.7 ? 0.08 : 0.02; // Stronger pull-back for closer particles
+          this.velocityX = Math.random() * 0.4 - 0.2; // Slower, random velocity
+          this.velocityY = Math.random() * 0.4 - 0.2;
         }
 
         // Draw particle with depth-based opacity for ghostly effect
