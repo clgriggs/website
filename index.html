@@ -45,7 +45,8 @@
           this.baseY = y;
           this.size = Math.random() * 1 + 0.5; // Small particles for point cloud effect
           this.depth = Math.random() * 0.3 + 0.7; // Depth effect with opacity
-          this.maxWander = Math.random() * 30 + 20; // Maximum wander distance
+          this.maxWander = 10; // Reduced wander range to stay closer to base
+          this.pullStrength = 0.05; // Pull-back force to base position
           this.velocityX = Math.random() * 0.5 - 0.25; // Slower, random velocity
           this.velocityY = Math.random() * 0.5 - 0.25;
         }
@@ -59,14 +60,20 @@
           ctx.fill();
         }
 
-        // Floating effect with random movement within a wider range
+        // Floating effect with random movement and pull-back force
         update() {
           this.x += this.velocityX;
           this.y += this.velocityY;
 
-          // Randomly reverse direction if particle moves too far from base position
-          if (Math.abs(this.x - this.baseX) > this.maxWander) this.velocityX *= -1;
-          if (Math.abs(this.y - this.baseY) > this.maxWander) this.velocityY *= -1;
+          // Pull particle back toward base position if it wanders too far
+          const distanceX = this.x - this.baseX;
+          const distanceY = this.y - this.baseY;
+          const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+          
+          if (distance > this.maxWander) {
+            this.x -= distanceX * this.pullStrength;
+            this.y -= distanceY * this.pullStrength;
+          }
         }
 
         // Smoothly move particle to new target position
