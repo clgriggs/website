@@ -108,7 +108,7 @@
         console.log(`Generated ${particles.length} particles`); // Debug log
       }
 
-      // Move particles to new text shape
+      // Move particles to new text shape with smooth transition
       function moveParticlesToText(text) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "bold 100px sans-serif";
@@ -130,11 +130,16 @@
         }
       }
 
-      // Mouse event listener to switch text smoothly
+      // Toggle between text shapes on mouse movement with delay
       let useEnterText = false;
+      let lastMouseMove = 0;
       function switchText() {
-        moveParticlesToText(useEnterText ? "CRYSTAL GRIGGS" : "ENTER");
-        useEnterText = !useEnterText;
+        const now = Date.now();
+        if (now - lastMouseMove > 200) { // Delay transition to prevent rapid flickering
+          lastMouseMove = now;
+          moveParticlesToText(useEnterText ? "CRYSTAL GRIGGS" : "ENTER");
+          useEnterText = !useEnterText;
+        }
       }
       canvas.addEventListener('mousemove', switchText);
 
