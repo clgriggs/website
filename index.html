@@ -37,36 +37,36 @@
       }
       resizeCanvas();
 
-      // Particle class definition
+      // Particle class definition with depth illusion
       class Particle {
         constructor(x, y) {
           this.x = x;
           this.y = y;
-          this.size = 2; // Smaller for higher density
           this.baseX = x;
           this.baseY = y;
-          this.velocityX = Math.random() * 0.6 - 0.3; // Random velocity for floating effect
-          this.velocityY = Math.random() * 0.6 - 0.3;
-          this.color = 'rgba(180, 200, 255, 0.8)';
+          this.size = Math.random() * 1.5 + 0.5; // Smaller, varied size for point cloud effect
+          this.depth = Math.random() * 0.3 + 0.7; // Depth effect with opacity
+          this.velocityX = Math.random() * 1 - 0.5;
+          this.velocityY = Math.random() * 1 - 0.5;
         }
 
-        // Draw particle
+        // Draw particle with depth-based opacity for ghostly effect
         draw() {
-          ctx.fillStyle = this.color;
+          ctx.fillStyle = `rgba(255, 255, 255, ${this.depth})`;
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
           ctx.closePath();
           ctx.fill();
         }
 
-        // Update particle positions for slight floating effect
+        // Floating effect with movement around base position
         update() {
           this.x += this.velocityX;
           this.y += this.velocityY;
 
           // Reverse direction if particle moves too far from base position
-          if (Math.abs(this.x - this.baseX) > 2) this.velocityX *= -1;
-          if (Math.abs(this.y - this.baseY) > 2) this.velocityY *= -1;
+          if (Math.abs(this.x - this.baseX) > 5) this.velocityX *= -1;
+          if (Math.abs(this.y - this.baseY) > 5) this.velocityY *= -1;
         }
 
         // Move particle to new target position smoothly
@@ -83,14 +83,14 @@
       function createParticles(text) {
         particles = []; // Reset the particles array
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "bold 80px sans-serif";
+        ctx.font = "bold 100px sans-serif";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
         ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
         const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        for (let y = 0; y < canvas.height; y += 6) { // Smaller gap for higher density
-          for (let x = 0; x < canvas.width; x += 6) {
+        for (let y = 0; y < canvas.height; y += 4) { // Closer grid for high density
+          for (let x = 0; x < canvas.width; x += 4) {
             const alpha = textData[(y * canvas.width + x) * 4 + 3];
             if (alpha > 128) {
               const particle = new Particle(x, y);
@@ -104,7 +104,7 @@
       // Move particles to new text shape
       function moveParticlesToText(text) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "bold 80px sans-serif";
+        ctx.font = "bold 100px sans-serif";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
         ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -112,8 +112,8 @@
         const textData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         let particleIndex = 0;
 
-        for (let y = 0; y < canvas.height; y += 6) {
-          for (let x = 0; x < canvas.width; x += 6) {
+        for (let y = 0; y < canvas.height; y += 4) {
+          for (let x = 0; x < canvas.width; x += 4) {
             const alpha = textData[(y * canvas.width + x) * 4 + 3];
             if (alpha > 128 && particleIndex < particles.length) {
               particles[particleIndex].moveTo(x, y);
