@@ -130,18 +130,29 @@
         }
       }
 
-      // Toggle between text shapes on mouse movement with delay
+      // Proximity-based transition: switch to "ENTER" when mouse is near center
       let useEnterText = false;
-      let lastMouseMove = 0;
-      function switchText() {
-        const now = Date.now();
-        if (now - lastMouseMove > 200) { // Delay transition to prevent rapid flickering
-          lastMouseMove = now;
-          moveParticlesToText(useEnterText ? "CRYSTAL GRIGGS" : "ENTER");
-          useEnterText = !useEnterText;
+      function checkMouseProximity(event) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        // Calculate distance from mouse to center of the text
+        const distance = Math.sqrt((mouseX - centerX) ** 2 + (mouseY - centerY) ** 2);
+
+        // If mouse is close to the center, switch to "ENTER"; otherwise, switch back
+        if (distance < 150 && !useEnterText) {
+          moveParticlesToText("ENTER");
+          useEnterText = true;
+        } else if (distance >= 150 && useEnterText) {
+          moveParticlesToText("CRYSTAL GRIGGS");
+          useEnterText = false;
         }
       }
-      canvas.addEventListener('mousemove', switchText);
+
+      canvas.addEventListener('mousemove', checkMouseProximity);
 
       // Animation loop
       function animate() {
