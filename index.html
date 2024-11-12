@@ -12,10 +12,13 @@
             background-color: #111;
             color: white;
             font-family: Arial, sans-serif;
+            height: 100%;
         }
 
         canvas {
             position: absolute;
+            top: 0;
+            left: 0;
         }
     </style>
 </head>
@@ -27,32 +30,31 @@
       const canvas = document.getElementById('particleCanvas');
       const ctx = canvas.getContext('2d');
 
-      // Set canvas dimensions
+      // Set canvas dimensions to cover the full viewport
       function resizeCanvas() {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
       }
       resizeCanvas();
 
-      // Test 1: Fill the canvas with a background color to confirm rendering
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.3)'; // Light red to make sure it's visible
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Test Background and Centered Circle
+      function drawTest() {
+          // Red background for visibility
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Test 2: Draw a single particle (white circle) in the center of the canvas
-      ctx.fillStyle = 'white';
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2); // Larger radius for visibility
-      ctx.fill();
+          // Draw white circle in the true center
+          ctx.fillStyle = 'white';
+          ctx.beginPath();
+          ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2); 
+          ctx.fill();
+      }
+      drawTest();
 
-      // Adjust canvas size on window resize
+      // Adjust canvas size and redraw on window resize
       window.addEventListener('resize', () => {
         resizeCanvas();
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2);
-        ctx.fill();
+        drawTest();
       });
     </script>
 </body>
